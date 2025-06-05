@@ -116,6 +116,8 @@ class NewsAPI:
             return self._search_baidu(keyword)
         elif self.api_provider == "juhe":
             return self._search_juhe(keyword)
+        elif self.api_provider == "newsapi":
+            return self._search_newsapi(keyword)
         else:
             logger.error(f"不支持的API提供商: {self.api_provider}")
             return []
@@ -275,6 +277,71 @@ class NewsAPI:
             
         except Exception as e:
             logger.error(f"聚合数据API调用失败: {e}")
+            return []
+    
+    def _search_newsapi(self, keyword: str) -> List[Dict[str, Any]]:
+        """使用NewsAPI.org搜索新闻"""
+        try:
+            # NewsAPI.org 的 everything 端点，支持关键词搜索
+            url = "https://newsapi.org/v2/everything"
+            headers = {"X-API-Key": self.api_key}
+            params = {
+                "q": keyword,
+                "language": "en",  # 英文新闻
+                "sortBy": "publishedAt",  # 按发布时间排序
+                "pageSize": self.settings.get_setting("maxResults"),
+                "domains": "techcrunch.com,engadget.com,thenextweb.com,arstechnica.com,wired.com,theverge.com"  # 科技媒体
+            }
+            
+            if not self.api_key or self.api_key.strip() == "":
+                logger.warning("NewsAPI.org API密钥未配置，返回模拟数据")
+                # 返回模拟数据作为备用
+                results = []
+                for i in range(5):
+                    news_item = {
+                        "title": f"[模拟] 关于{keyword}的AI新闻 #{i+1}",
+                        "source": "模拟科技媒体",
+                        "link": f"https://example.com/ai-news/{i}",
+                        "publishedAt": datetime.now().isoformat(),
+                        "tags": [keyword, "AI", "科技"],
+                        "imageUrl": "https://via.placeholder.com/300x200/3b82f6/ffffff?text=AI+News",
+                        "content": f"这是关于{keyword}的模拟AI新闻内容。讨论了人工智能和{keyword}相关的最新技术发展、行业趋势和创新应用。#{i+1}"
+                    }
+                    results.append(news_item)
+                return results
+            
+            response = requests.get(url, headers=headers, params=params, timeout=10)
+            response.raise_for_status()
+            
+            data = response.json()
+            if data.get("status") != "ok":
+                logger.error(f"NewsAPI.org错误: {data.get('message', '未知错误')}")
+                return []
+            
+            results = []
+            articles = data.get("articles", [])
+            
+            for article in articles:
+                # 过滤掉被移除的文章
+                if article.get("title") == "[Removed]":
+                    continue
+                    
+                news_item = {
+                    "title": article.get("title", ""),
+                    "source": article.get("source", {}).get("name", ""),
+                    "link": article.get("url", ""),
+                    "publishedAt": article.get("publishedAt", datetime.now().isoformat()),
+                    "tags": [keyword, "AI", "科技"],
+                    "imageUrl": article.get("urlToImage") or "https://via.placeholder.com/300x200/3b82f6/ffffff?text=Tech+News",
+                    "content": article.get("description", article.get("content", ""))[:200] + "..." if article.get("description") else ""
+                }
+                results.append(news_item)
+            
+            logger.info(f"NewsAPI.org返回 {len(results)} 条新闻")
+            return results
+            
+        except Exception as e:
+            logger.error(f"NewsAPI.org调用失败: {e}")
             return []
 
 
@@ -484,7 +551,7 @@ def main():
     parser.add_argument("-s", "--settings", default="settings.json", help="设置文件路径")
     parser.add_argument("-k", "--keywords", help="覆盖设置文件中的关键词（逗号分隔）")
     parser.add_argument("-t", "--storage-type", choices=["json", "sqlite"], help="存储类型（json或sqlite）")
-    parser.add_argument("-a", "--api", choices=["brave", "bing", "baidu"], help="API提供商")
+    parser.add_argument("-a", "--api", choices=["brave", "bing", "baidu", "juhe", "newsapi"], help="API提供商")
     parser.add_argument("--api-key", help="API密钥")
     
     args = parser.parse_args()
