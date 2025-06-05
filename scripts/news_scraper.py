@@ -114,6 +114,8 @@ class NewsAPI:
             return self._search_bing(keyword)
         elif self.api_provider == "baidu":
             return self._search_baidu(keyword)
+        elif self.api_provider == "juhe":
+            return self._search_juhe(keyword)
         else:
             logger.error(f"不支持的API提供商: {self.api_provider}")
             return []
@@ -186,24 +188,93 @@ class NewsAPI:
         try:
             # 这里应该是实际的百度API调用
             # 由于没有官方API，这里返回模拟数据
-            logger.warning("百度搜索API为模拟实现，返回测试数据")
+            logger.warning("⚠️  百度搜索API为模拟实现，返回的是假数据！")
+            logger.warning("⚠️  如需真实新闻数据，请参考 JUHE_API_SETUP.md 配置聚合数据API")
             
             results = []
             for i in range(5):  # 模拟5条结果
                 news_item = {
-                    "title": f"[百度] 关于{keyword}的新闻 #{i+1}",
-                    "source": "百度资讯",
-                    "link": f"https://example.com/news/{i}",
+                    "title": f"⚠️ [假数据] 关于{keyword}的模拟新闻 #{i+1}",
+                    "source": "模拟数据源（非真实）",
+                    "link": f"https://example.com/fake-news/{i}",
                     "publishedAt": datetime.now().isoformat(),
-                    "tags": [keyword],
-                    "imageUrl": "https://via.placeholder.com/300x200/3b82f6/ffffff?text=Baidu+News",
-                    "content": f"这是关于{keyword}的模拟新闻内容摘要。这条新闻讨论了{keyword}领域的最新发展和趋势。#{i+1}"
+                    "tags": [keyword, "模拟数据"],
+                    "imageUrl": "https://via.placeholder.com/300x200/ff6b6b/ffffff?text=FAKE+DATA",
+                    "content": f"⚠️ 这是模拟的假数据！关于{keyword}的虚假新闻内容。如需真实数据请配置聚合数据API。#{i+1}"
                 }
                 results.append(news_item)
             
             return results
         except Exception as e:
             logger.error(f"百度搜索失败: {e}")
+            return []
+    
+    def _search_juhe(self, keyword: str) -> List[Dict[str, Any]]:
+        """使用聚合数据新闻头条API"""
+        try:
+            # 聚合数据新闻头条API
+            url = "http://v.juhe.cn/toutiao/index"
+            params = {
+                "type": "",  # 新闻类型，空为全部
+                "key": self.api_key  # 聚合数据API密钥
+            }
+            
+            if not self.api_key:
+                logger.warning("聚合数据API密钥未配置，返回模拟数据")
+                # 返回模拟数据作为备用
+                results = []
+                for i in range(5):
+                    news_item = {
+                        "title": f"[模拟] 关于{keyword}的新闻 #{i+1}",
+                        "source": "模拟数据源",
+                        "link": f"https://example.com/news/{i}",
+                        "publishedAt": datetime.now().isoformat(),
+                        "tags": [keyword],
+                        "imageUrl": "https://via.placeholder.com/300x200/3b82f6/ffffff?text=Mock+News",
+                        "content": f"这是关于{keyword}的模拟新闻内容摘要。这条新闻讨论了{keyword}领域的最新发展和趋势。#{i+1}"
+                    }
+                    results.append(news_item)
+                return results
+            
+            response = requests.get(url, params=params, timeout=10)
+            response.raise_for_status()
+            
+            data = response.json()
+            if data.get("error_code") != 0:
+                logger.error(f"聚合数据API错误: {data.get('reason', '未知错误')}")
+                return []
+            
+            results = []
+            news_list = data.get("result", {}).get("data", [])
+            
+            # 过滤包含关键词的新闻
+            filtered_news = []
+            for news in news_list:
+                title = news.get("title", "")
+                if keyword.lower() in title.lower():
+                    filtered_news.append(news)
+            
+            # 如果没有匹配的新闻，取前5条
+            if not filtered_news:
+                filtered_news = news_list[:5]
+            
+            for news in filtered_news[:5]:  # 最多返回5条
+                news_item = {
+                    "title": news.get("title", ""),
+                    "source": news.get("author_name", "聚合数据"),
+                    "link": news.get("url", ""),
+                    "publishedAt": news.get("date", datetime.now().isoformat()),
+                    "tags": [keyword],
+                    "imageUrl": news.get("thumbnail_pic_s", ""),
+                    "content": news.get("title", "")  # 聚合数据API只提供标题
+                }
+                results.append(news_item)
+            
+            logger.info(f"聚合数据API返回 {len(results)} 条新闻")
+            return results
+            
+        except Exception as e:
+            logger.error(f"聚合数据API调用失败: {e}")
             return []
 
 
