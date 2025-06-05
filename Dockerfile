@@ -40,7 +40,7 @@ COPY scripts/ /app/scripts/
 COPY public/ /app/public/
 
 # 安装 Python 依赖
-RUN cd /app/scripts && pip3 install -r requirements.txt --break-system-packages
+RUN cd /app/scripts && pip3 install -r requirements.txt
 
 # 创建软链接，让 Nginx 能访问数据库文件
 RUN ln -sf /app/public/news.db /usr/share/nginx/html/news.db
