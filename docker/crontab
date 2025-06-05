@@ -1,0 +1,10 @@
+# 每30分钟抓取一次新闻
+*/30 * * * * cd /app/scripts && python3 news_scraper.py >> /app/logs/scraper.log 2>&1
+
+# 每天凌晨3点清理旧日志（保留7天）
+0 3 * * * find /app/logs -name "*.log" -type f -mtime +7 -delete
+
+# 每周日凌晨4点备份数据库
+0 4 * * 0 cp /app/public/news.db /app/public/news.db.bak.$(date +\%Y\%m\%d) && find /app/public -name "news.db.bak.*" -type f -mtime +30 -delete
+
+# 保持 crontab 运行的空行

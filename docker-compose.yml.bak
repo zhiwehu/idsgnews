@@ -1,0 +1,101 @@
+services:
+  # 新闻抓取应用服务
+  idsgnews:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: idsgnews-app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # 持久化数据库文件
+      - ./data:/app/public
+      # 持久化日志文件
+      - ./logs:/app/logs
+      # SSL证书文件
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+      # 可选：自定义配置文件
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx-ssl.conf:/etc/nginx/conf.d/default.conf:ro
+    environment:
+      # 环境变量配置
+      - NODE_ENV=production
+      - TZ=Asia/Shanghai
+      # 新闻抓取配置
+      - NEWS_UPDATE_INTERVAL=1800  # 30分钟
+      - MAX_NEWS_ITEMS=100
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - idsgnews-network
+    depends_on:
+      - certbot
+
+  # Certbot SSL证书服务
+  certbot:
+    image: certbot/certbot:latest
+    container_name: idsgnews-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/logs:/var/log/letsencrypt
+    command: certonly --webroot --webroot-path=/var/www/certbot --email zhiwehu@gmail.com --agree-tos --no-eff-email --staging -d idsg.site
+    networks:
+       - idsgnews-network
+
+  # 可选：数据库服务（如果需要外部数据库）
+  # database:
+  #   image: postgres:15-alpine
+  #   container_name: idsgnews-db
+  #   environment:
+  #     POSTGRES_DB: idsgnews
+  #     POSTGRES_USER: idsgnews
+  #     POSTGRES_PASSWORD: your_secure_password
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - idsgnews-network
+  #   restart: unless-stopped
+
+  # 可选：Redis 缓存服务
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: idsgnews-redis
+  #   command: redis-server --appendonly yes
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - idsgnews-network
+  #   restart: unless-stopped
+
+  # 可选：监控服务
+  # watchtower:
+  #   image: containrrr/watchtower
+  #   container_name: idsgnews-watchtower
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   environment:
+  #     - WATCHTOWER_CLEANUP=true
+  #     - WATCHTOWER_POLL_INTERVAL=3600
+  #   restart: unless-stopped
+
+networks:
+  idsgnews-network:
+    driver: bridge
+
+volumes:
+  # 如果使用外部数据库，取消注释以下行
+  # postgres_data:
+  # redis_data:
+  
+  # 本地数据卷（用于备份）
+  idsgnews_data:
+    driver: local

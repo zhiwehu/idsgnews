@@ -1,0 +1,109 @@
+# Git 相关
+.git
+.gitignore
+
+# Node.js 相关
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 构建输出
+dist
+build
+
+# 开发环境文件
+.env.development
+.env.local
+.env.*.local
+
+# 日志文件
+logs
+*.log
+nohup.out
+
+# 运行时数据
+data
+*.db
+*.sqlite
+*.sqlite3
+
+# 临时文件
+.tmp
+.temp
+*.tmp
+*.temp
+
+# 编辑器和IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 测试覆盖率
+coverage
+.nyc_output
+
+# 依赖目录
+.pnp
+.pnp.js
+
+# 可选的npm缓存目录
+.npm
+
+# 可选的REPL历史
+.node_repl_history
+
+# 输出的二进制文件
+*.tgz
+
+# Yarn完整性文件
+.yarn-integrity
+
+# parcel-bundler缓存
+.cache
+.parcel-cache
+
+# next.js构建输出
+.next
+
+# nuxt.js构建输出
+.nuxt
+
+# vuepress构建输出
+.vuepress/dist
+
+# Serverless目录
+.serverless
+
+# FuseBox缓存
+.fusebox
+
+# DynamoDB本地
+.dynamodb
+
+# 文档
+README*.md
+DOCUMENTATION.md
+CHANGELOG.md
+LICENSE
+
+# 部署相关（保留Docker相关文件）
+deploy.sh
+check-environment.sh
+SERVER_SETUP_GUIDE.md
+DEPLOYMENT.md
+DEPLOYMENT_CHECKLIST.md
+
+# 但保留Docker相关文件
+!Dockerfile
+!docker-compose*.yml
+!docker/
+!DOCKER_DEPLOYMENT.md
+!docker-start.sh
+!.dockerignore

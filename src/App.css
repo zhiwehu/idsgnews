@@ -1,0 +1,26 @@
+/* 重置默认样式 */
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+/* 布局样式 */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .ant-layout-content {
+    margin: 12px 8px !important;
+    padding: 16px !important;
+  }
+}
