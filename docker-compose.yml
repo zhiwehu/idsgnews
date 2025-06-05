@@ -6,8 +6,8 @@ services:
       dockerfile: Dockerfile
     container_name: idsgnews-app
     ports:
-      - "80:80"
-      - "443:443"
+      - "3000:80"
+      - "3443:443"
     volumes:
       # 持久化数据库文件
       - ./data:/app/public
@@ -32,20 +32,7 @@ services:
       start_period: 40s
     networks:
       - idsgnews-network
-    depends_on:
-      - certbot
-
-  # Certbot SSL证书服务
-  certbot:
-    image: certbot/certbot:latest
-    container_name: idsgnews-certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-      - ./certbot/logs:/var/log/letsencrypt
-    command: certonly --webroot --webroot-path=/var/www/certbot --email zhiwehu@gmail.com --agree-tos --no-eff-email --staging --staging -d your-domain.com
-    networks:
-       - idsgnews-network
+    # 暂时去掉certbot依赖，先确保80端口能正常运行
 
   # 可选：数据库服务（如果需要外部数据库）
   # database:
