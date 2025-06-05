@@ -32,10 +32,10 @@ cd idsgnews
 mkdir -p data logs
 
 # 启动服务
-docker-compose up -d
+docker compose up -d
 
 # 查看服务状态
-docker-compose ps
+docker compose ps
 ```
 
 ### 2. HTTPS部署（生产环境）
@@ -70,10 +70,10 @@ vim .env
 mkdir -p data logs certbot/conf certbot/www certbot/logs
 
 # 4. 使用SSL配置启动服务
-docker-compose -f docker-compose.ssl.yml up -d
+docker compose -f docker-compose.ssl.yml up -d
 
 # 5. 查看服务状态
-docker-compose -f docker-compose.ssl.yml ps
+docker compose -f docker-compose.ssl.yml ps
 ```
 
 访问 http://localhost 即可查看您的新闻网站！
@@ -198,36 +198,36 @@ REFERRER_POLICY="strict-origin-when-cross-origin"
 
 ```bash
 # 查看所有服务状态
-docker-compose ps
+docker compose ps
 
 # 查看特定服务状态
-docker-compose ps idsgnews
+docker compose ps idsgnews
 ```
 
 #### 停止和重启
 
 ```bash
 # 停止所有服务
-docker-compose down
+docker compose down
 
 # 重启服务
-docker-compose restart
+docker compose restart
 
 # 重启特定服务
-docker-compose restart idsgnews
+docker compose restart idsgnews
 ```
 
 #### 查看日志
 
 ```bash
 # 查看所有服务日志
-docker-compose logs -f
+docker compose logs -f
 
 # 查看特定服务日志
-docker-compose logs -f idsgnews
+docker compose logs -f idsgnews
 
 # 查看最近100行日志
-docker-compose logs --tail=100 idsgnews
+docker compose logs --tail=100 idsgnews
 ```
 
 ### HTTPS部署管理
@@ -236,7 +236,7 @@ docker-compose logs --tail=100 idsgnews
 
 ```bash
 # 查看SSL服务状态
-docker-compose -f docker-compose.ssl.yml ps
+docker compose -f docker-compose.ssl.yml ps
 
 # 查看证书状态
 docker exec idsgnews-app-ssl ls -la /etc/letsencrypt/live/
@@ -246,13 +246,13 @@ docker exec idsgnews-app-ssl ls -la /etc/letsencrypt/live/
 
 ```bash
 # 停止SSL服务
-docker-compose -f docker-compose.ssl.yml down
+docker compose -f docker-compose.ssl.yml down
 
 # 重启SSL服务
-docker-compose -f docker-compose.ssl.yml restart
+docker compose -f docker-compose.ssl.yml restart
 
 # 查看SSL服务日志
-docker-compose -f docker-compose.ssl.yml logs -f
+docker compose -f docker-compose.ssl.yml logs -f
 ```
 
 #### SSL证书管理
@@ -268,7 +268,7 @@ docker exec idsgnews-certbot certbot certificates
 docker exec idsgnews-certbot certbot renew --dry-run
 
 # 查看Certbot日志
-docker-compose -f docker-compose.ssl.yml logs certbot
+docker compose -f docker-compose.ssl.yml logs certbot
 ```
 
 ### 通用管理命令
@@ -295,7 +295,7 @@ docker exec -it idsgnews-app tail -f /app/logs/scraper.log
 git pull
 
 # 重新构建并启动
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 ## 📁 数据持久化
@@ -315,12 +315,12 @@ cp -r ./data_backup_YYYYMMDD/* ./data/
 ### 修改 Nginx 配置
 
 1. 编辑 `docker/nginx.conf` 或 `docker/default.conf`
-2. 重启容器：`docker-compose restart`
+2. 重启容器：`docker compose restart`
 
 ### 修改定时任务
 
 1. 编辑 `docker/crontab` 文件
-2. 重新构建并启动：`docker-compose up -d --build`
+2. 重新构建并启动：`docker compose up -d --build`
 
 ## 🔍 故障排除
 
@@ -328,36 +328,36 @@ cp -r ./data_backup_YYYYMMDD/* ./data/
 
 ```bash
 # 查看详细日志
-docker-compose logs -f
+docker compose logs -f
 
 # 检查 Nginx 配置
-docker-compose exec idsgnews nginx -t
+docker compose exec idsgnews nginx -t
 ```
 
 ### 网站无法访问
 
 ```bash
 # 检查容器状态
-docker-compose ps
+docker compose ps
 
 # 检查端口映射
-docker-compose port idsgnews 80
+docker compose port idsgnews 80
 
 # 检查 Nginx 日志
-docker-compose exec idsgnews cat /var/log/nginx/error.log
+docker compose exec idsgnews cat /var/log/nginx/error.log
 ```
 
 ### 新闻不更新
 
 ```bash
 # 检查定时任务
-docker-compose exec idsgnews cat /etc/crontabs/root
+docker compose exec idsgnews cat /etc/crontabs/root
 
 # 检查抓取日志
-docker-compose exec idsgnews cat /app/logs/scraper.log
+docker compose exec idsgnews cat /app/logs/scraper.log
 
 # 手动运行抓取
-docker-compose exec idsgnews python3 /app/scripts/news_scraper.py
+docker compose exec idsgnews python3 /app/scripts/news_scraper.py
 ```
 
 ## 🚀 生产环境部署
@@ -446,7 +446,7 @@ proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=STATIC:10m inactive=24h m
 
 ## 🔒 安全建议
 
-1. **定期更新镜像**：`docker-compose pull && docker-compose up -d`
+1. **定期更新镜像**：`docker compose pull && docker compose up -d`
 2. **限制容器权限**：在 docker-compose.yml 中添加安全选项
 3. **使用非 root 用户**：修改 Dockerfile 使用非特权用户
 4. **启用内容安全策略**：在 Nginx 配置中添加 CSP 头
@@ -456,9 +456,9 @@ proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=STATIC:10m inactive=24h m
 
 如果您在部署过程中遇到问题，请：
 
-1. 查看容器日志：`docker-compose logs -f`
-2. 检查应用日志：`docker-compose exec idsgnews cat /app/logs/scraper.log`
-3. 验证配置文件：`docker-compose config`
+1. 查看容器日志：`docker compose logs -f`
+2. 检查应用日志：`docker compose exec idsgnews cat /app/logs/scraper.log`
+3. 验证配置文件：`docker compose config`
 
 ---
 

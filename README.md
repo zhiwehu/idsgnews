@@ -25,7 +25,7 @@ cd idsgnews
 ./docker-start.sh
 
 # 或者手动启动
-docker-compose up -d
+docker compose up -d
 ```
 
 访问 http://localhost 即可查看您的新闻网站！
@@ -125,7 +125,7 @@ VITE_MAX_NEWS_ITEMS=100
 docker-compose -f docker-compose.simple.yml up -d
 
 # 使用完整配置
-docker-compose up -d
+docker compose up -d
 ```
 
 ### 自定义配置
@@ -139,7 +139,7 @@ docker-compose up -d
 
 3. 启动服务：
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 ### 管理容器
@@ -149,13 +149,13 @@ docker-compose up -d
 docker-compose ps
 
 # 查看日志
-docker-compose logs -f
+docker compose logs -f
 
 # 重启服务
 docker-compose restart
 
 # 停止服务
-docker-compose down
+docker compose down
 ```
 
 ## 📊 数据存储

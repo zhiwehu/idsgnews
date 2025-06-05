@@ -37,7 +37,7 @@ check_docker() {
         exit 1
     fi
     
-    if ! command -v docker-compose &> /dev/null; then
+    if ! docker compose version &> /dev/null; then
         log_error "Docker Compose 未安装，请先安装 Docker Compose"
         echo "安装指南: https://docs.docker.com/compose/install/"
         exit 1
@@ -117,10 +117,10 @@ deploy_containers() {
     log_info "开始构建和部署容器..."
     
     # 停止现有容器（如果存在）
-    docker-compose -f $COMPOSE_FILE down 2>/dev/null || true
+    docker compose -f $COMPOSE_FILE down 2>/dev/null || true
     
     # 构建并启动容器
-    docker-compose -f $COMPOSE_FILE up -d --build
+    docker compose -f $COMPOSE_FILE up -d --build
     
     if [ $? -eq 0 ]; then
         log_success "容器部署成功"
@@ -165,15 +165,15 @@ show_result() {
     echo "📝 日志目录: ./logs"
     echo
     echo "常用命令:"
-    echo "  查看日志: docker-compose -f $COMPOSE_FILE logs -f"
-    echo "  停止服务: docker-compose -f $COMPOSE_FILE stop"
-    echo "  重启服务: docker-compose -f $COMPOSE_FILE restart"
-    echo "  删除服务: docker-compose -f $COMPOSE_FILE down"
+    echo "  查看日志: docker compose -f $COMPOSE_FILE logs -f"
+    echo "  停止服务: docker compose -f $COMPOSE_FILE stop"
+    echo "  重启服务: docker compose -f $COMPOSE_FILE restart"
+    echo "  删除服务: docker compose -f $COMPOSE_FILE down"
     echo
     
     # 显示容器状态
     log_info "容器状态:"
-    docker-compose -f $COMPOSE_FILE ps
+    docker compose -f $COMPOSE_FILE ps
 }
 
 # 主函数
@@ -199,7 +199,7 @@ main() {
     else
         echo
         log_error "部署可能存在问题，请检查日志:"
-        echo "docker-compose -f $COMPOSE_FILE logs"
+        echo "docker compose -f $COMPOSE_FILE logs"
     fi
 }
 

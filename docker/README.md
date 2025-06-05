@@ -14,7 +14,7 @@
 这些文件会被 Dockerfile 自动复制到容器中，通常不需要手动修改。如果需要自定义配置，可以：
 
 1. 修改这些文件
-2. 重新构建容器：`docker-compose up -d --build`
+2. 重新构建容器：`docker compose up -d --build`
 
 或者通过卷挂载覆盖容器内的配置：
 
