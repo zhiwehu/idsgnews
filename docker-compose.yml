@@ -43,7 +43,7 @@ services:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
       - ./certbot/logs:/var/log/letsencrypt
-    command: certonly --webroot --webroot-path=/var/www/certbot --email zhiwehu@gmail.com --agree-tos --no-eff-email --staging --staging -d idsg.site
+    command: certonly --webroot --webroot-path=/var/www/certbot --email zhiwehu@gmail.com --agree-tos --no-eff-email --staging --staging -d your-domain.com
     networks:
        - idsgnews-network
 
