@@ -2,7 +2,7 @@
   "keywords": "设计,科技",
   "updateTime": "09:00",
   "apiKey": "BSAmIRIor23KpD9QrmjjvUTTVD7JlXy",
-  "apiProvider": "brave",
+  "apiProvider": "baidu",
   "storageType": "sqlite",
   "maxResults": 20,
   "dbPath": "../public/news.db",
