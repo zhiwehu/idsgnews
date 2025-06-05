@@ -12,7 +12,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f5f5f5;
   min-height: 100vh;
 }
 
@@ -22,33 +22,30 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  background: #f1f1f1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: #c1c1c1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #5a6fd8, #6a42a0);
+  background: #a8a8a8;
 }
 
 /* 卡片悬停效果 */
 .ant-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease;
 }
 
 .ant-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* 按钮悬停效果 */
 .ant-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  opacity: 0.9;
 }
 
 /* 输入框聚焦效果 */
@@ -88,191 +85,23 @@ img {
   transform: scale(1.05);
 }
 
-/* 科技感动画效果 */
-@keyframes borderGlow {
-  0% {
-    opacity: 0.3;
-    filter: hue-rotate(0deg);
+/* 简化动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-  50% {
-    opacity: 0.8;
-    filter: hue-rotate(90deg);
-  }
-  100% {
-    opacity: 0.3;
-    filter: hue-rotate(180deg);
+  to {
+    opacity: 1;
   }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    transform: translateZ(0) scale(1);
-    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
-  }
-  50% {
-    transform: translateZ(0) scale(1.05);
-    box-shadow: 0 16px 50px rgba(102, 126, 234, 0.6);
-  }
+/* 简化卡片样式 */
+.news-card {
+  transition: box-shadow 0.2s ease;
 }
 
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-/* 科技感卡片样式 */
-.tech-news-card {
-  position: relative;
-  overflow: hidden;
-}
-
-.tech-news-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 24px;
-  padding: 2px;
-  background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: xor;
-  -webkit-mask-composite: xor;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-  z-index: 1;
-}
-
-.tech-news-card:hover::before {
-  opacity: 1;
-  animation: borderGlow 2s ease-in-out infinite;
-}
-
-.tech-news-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 
-    0 35px 100px rgba(0, 0, 0, 0.2),
-    0 20px 60px rgba(102, 126, 234, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 0 0 2px rgba(102, 126, 234, 0.2);
-}
-
-/* 科技感图片容器 */
-.tech-image-container:hover .tech-image {
-  transform: scale(1.1) rotate(1deg);
-  filter: brightness(1.2) contrast(1.2) saturate(1.2);
-}
-
-.tech-image-container:hover .tech-border-animation {
-  opacity: 1;
-}
-
-.tech-image-container:hover .tech-grid {
-  opacity: 0.6;
-}
-
-/* 科技感标题 */
-.tech-title {
-  position: relative;
-  overflow: hidden;
-}
-
-.tech-title::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
-  transition: left 0.8s ease;
-}
-
-.tech-news-card:hover .tech-title::after {
-  left: 100%;
-}
-
-/* 科技感标签 */
-.tech-tag {
-  position: relative;
-  overflow: hidden;
-}
-
-.tech-tag::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  transition: left 0.5s ease;
-}
-
-.tech-tag:hover::before {
-  left: 100%;
-}
-
-/* 科技感按钮 */
-.tech-read-button {
-  position: relative;
-  overflow: hidden;
-}
-
-.tech-read-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  transition: left 0.6s ease;
-}
-
-.tech-read-button:hover::before {
-  left: 100%;
+.news-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 /* 大屏幕优化 */
@@ -355,107 +184,16 @@ img {
   }
 }
 
-/* 动画效果 */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200px 0;
-  }
-  100% {
-    background-position: calc(200px + 100%) 0;
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
+/* 基础动画效果 */
 .ant-card {
-  animation: fadeInUp 0.4s ease-out;
+  animation: fadeIn 0.3s ease-out;
 }
 
-/* 渐变文字效果 */
-.gradient-text {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* 玻璃态效果 */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* 阴影效果 */
-.shadow-lg {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-.shadow-xl {
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-}
-
-/* 列表项动画 */
-.ant-list-item {
-  animation: fadeInUp 0.4s ease-out;
-  animation-fill-mode: both;
-}
-
-/* 标签悬停效果 */
+/* 标签样式 */
 .ant-tag {
-  transition: transform 0.15s ease;
+  transition: opacity 0.2s ease;
 }
 
 .ant-tag:hover {
-  transform: scale(1.05);
-}
-
-/* 按钮悬停效果 */
-.ant-btn-primary {
-  transition: all 0.2s ease;
-}
-
-.ant-btn-primary:hover {
-  transform: translateY(-1px);
-}
-
-/* 图片悬停效果 */
-.ant-card img {
-  transition: transform 0.3s ease;
-}
-
-.ant-card:hover img {
-  transform: scale(1.05);
-}
-
-/* 加载动画增强 */
-.ant-spin-dot-item {
-  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  opacity: 0.8;
 }
