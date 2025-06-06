@@ -4,12 +4,76 @@
 
 ## 功能特性
 
-- 支持多个搜索API：Brave Search、Bing News、百度（模拟）
+- 支持多个搜索API：智谱清言AI搜索、Brave Search、Bing News、聚合数据API、NewsAPI.org、百度（模拟）
 - 支持多种存储格式：JSON文件、SQLite数据库
 - 可配置的关键词搜索
 - 自动去重和标签合并
 - 详细的日志记录
 - 命令行参数支持
+
+## 支持的API提供商
+
+1. **智谱清言AI搜索** - 🆕 基于大语言模型的智能搜索，中文优化
+2. **Brave Search API** - 推荐使用，数据质量高
+3. **Bing News Search API** - 微软提供，稳定可靠
+4. **聚合数据API** - 中文新闻支持好
+5. **NewsAPI.org** - 国外新闻源丰富
+6. **百度搜索** - 模拟实现（仅用于测试）
+
+## 快速开始
+
+### 1. 安装依赖
+```bash
+pip install -r requirements.txt
+```
+
+### 2. 配置API密钥
+
+#### 推荐方式：使用环境变量
+
+1. 复制环境变量示例文件：
+```bash
+cp .env.example .env
+```
+
+2. 编辑 `.env` 文件，设置你的API密钥：
+```bash
+# 智谱清言AI API密钥（推荐）
+ZHIPU_API_KEY=your_zhipu_api_key_here
+
+# 或其他API提供商
+BRAVE_API_KEY=your_brave_api_key_here
+BING_API_KEY=your_bing_api_key_here
+```
+
+#### 其他方式
+
+**方式2：修改settings.json**
+```json
+{
+  "apiProvider": "zhipu",
+  "apiKey": "your_api_key_here",
+  "keywords": "AI,人工智能,机器学习"
+}
+```
+
+**方式3：使用命令行参数**
+```bash
+python news_scraper.py --api zhipu --api-key your_api_key_here
+```
+
+### 3. 运行脚本
+
+```bash
+# 使用默认设置（智谱清言AI搜索）
+python news_scraper.py
+
+# 指定API提供商
+python news_scraper.py --api zhipu
+
+# 自定义关键词
+python news_scraper.py --keywords "人工智能,ChatGPT,大模型"
+```
 
 ## 安装依赖
 
