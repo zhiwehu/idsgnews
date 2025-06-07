@@ -387,21 +387,8 @@ class NewsAPI:
             }
             
             if not self.api_key or self.api_key.strip() == "":
-                logger.warning("智谱清言API密钥未配置，返回模拟数据")
-                # 返回模拟数据作为备用
-                results = []
-                for i in range(5):
-                    news_item = {
-                        "title": f"[模拟] 关于{keyword}的AI新闻 #{i+1}",
-                        "source": "智谱清言模拟数据",
-                        "link": f"https://example.com/zhipu-news/{i}",
-                        "publishedAt": datetime.now().isoformat(),
-                        "tags": [keyword, "AI", "智谱清言"],
-                        "imageUrl": "https://via.placeholder.com/300x200/4f46e5/ffffff?text=ZhiPu+AI",
-                        "content": f"这是关于{keyword}的模拟AI新闻内容。智谱清言AI分析了{keyword}相关的最新技术发展、行业趋势和创新应用。#{i+1}"
-                    }
-                    results.append(news_item)
-                return results
+                logger.warning("智谱清言API密钥未配置，无法获取真实新闻数据")
+                return []
             
             # 构建聊天请求，让AI生成关于关键词的新闻内容
             payload = {
@@ -409,7 +396,7 @@ class NewsAPI:
                 "messages": [
                     {
                         "role": "user",
-                        "content": f"请基于'{keyword}'这个主题，生成5条相关的新闻标题和内容摘要。请以JSON数组格式返回，每条新闻包含以下字段：title(新闻标题)、source(新闻来源，可以是知名媒体)、content(内容摘要，100-200字)、publishedAt(发布时间，使用ISO格式)。请确保内容专业、准确且有价值。请直接返回JSON数组，不要添加其他说明文字。"
+                        "content": f"请基于'{keyword}'这个主题，生成5条最新的、具有时效性的新闻标题和内容摘要。请模拟2024-2025年的最新发展趋势和突破性进展。请以JSON数组格式返回，每条新闻包含以下字段：title(新闻标题，体现最新发展)、source(知名媒体来源)、content(内容摘要，100-200字，突出创新性和时效性)、publishedAt(发布时间，使用ISO格式，应为近期时间)、imageUrl(相关图片链接)。请确保新闻内容反映该领域的最新趋势、技术突破或重要进展，避免过时信息。请直接返回JSON数组，不要添加其他说明文字。"
                     }
                 ],
                 "stream": False,
@@ -440,25 +427,34 @@ class NewsAPI:
                         
                         for item in news_data[:5]:  # 最多取5条
                             if isinstance(item, dict):
+                                # 处理图片URL，统一使用可靠的Unsplash图片
+                                image_url = item.get("imageUrl", "")
+                                # 检查是否为不可靠的图片链接，统一替换为Unsplash图片
+                                # 只允许使用Unsplash图片，其他所有域名都替换
+                                if not image_url or "images.unsplash.com" not in image_url:
+                                    relevant_images = self._get_relevant_images(keyword)
+                                    image_url = relevant_images[len(results) % len(relevant_images)]
+                                
                                 news_item = {
                                     "title": item.get("title", f"关于{keyword}的新闻"),
                                     "source": item.get("source", "智谱清言AI"),
                                     "link": item.get("link", f"https://example.com/news/{len(results)}"),
-                                    "publishedAt": item.get("publishedAt", datetime.now().isoformat()),
+                                    "publishedAt": datetime.now().isoformat(),  # 始终使用当前时间确保新闻显示在最上面
                                     "tags": [keyword, "AI搜索", "智谱清言"],
-                                    "imageUrl": "https://via.placeholder.com/300x200/4f46e5/ffffff?text=ZhiPu+AI",
+                                    "imageUrl": image_url,
                                     "content": item.get("content", "智谱清言AI生成的新闻内容")
                                 }
                                 results.append(news_item)
                     else:
                         # 如果没有找到JSON格式，生成基于AI回复的新闻条目
+                        relevant_images = self._get_relevant_images(keyword)
                         news_item = {
                             "title": f"智谱清言AI关于{keyword}的分析报告",
                             "source": "智谱清言AI",
                             "link": f"https://chatglm.cn/search?q={keyword}",
                             "publishedAt": datetime.now().isoformat(),
                             "tags": [keyword, "AI分析", "智谱清言"],
-                            "imageUrl": "https://via.placeholder.com/300x200/4f46e5/ffffff?text=ZhiPu+AI",
+                            "imageUrl": relevant_images[0],
                             "content": content[:500] + "..." if len(content) > 500 else content
                         }
                         results.append(news_item)
@@ -466,13 +462,14 @@ class NewsAPI:
                 except (json.JSONDecodeError, AttributeError) as e:
                     logger.warning(f"解析AI返回的JSON失败: {e}，使用原始内容")
                     # 生成基于AI回复的新闻条目
+                    relevant_images = self._get_relevant_images(keyword)
                     news_item = {
                         "title": f"智谱清言AI关于{keyword}的分析报告",
                         "source": "智谱清言AI",
                         "link": f"https://chatglm.cn/search?q={keyword}",
                         "publishedAt": datetime.now().isoformat(),
                         "tags": [keyword, "AI分析", "智谱清言"],
-                        "imageUrl": "https://via.placeholder.com/300x200/4f46e5/ffffff?text=ZhiPu+AI",
+                        "imageUrl": relevant_images[0],
                         "content": content[:500] + "..." if len(content) > 500 else content
                     }
                     results.append(news_item)
@@ -482,20 +479,45 @@ class NewsAPI:
             
         except Exception as e:
             logger.error(f"智谱清言AI搜索失败: {e}")
-            # 返回模拟数据作为备用
-            results = []
-            for i in range(3):
-                news_item = {
-                    "title": f"[备用] 关于{keyword}的新闻 #{i+1}",
-                    "source": "智谱清言备用数据",
-                    "link": f"https://example.com/backup-news/{i}",
-                    "publishedAt": datetime.now().isoformat(),
-                    "tags": [keyword, "备用数据"],
-                    "imageUrl": "https://via.placeholder.com/300x200/6b7280/ffffff?text=Backup+News",
-                    "content": f"由于API调用失败，这是关于{keyword}的备用新闻内容。#{i+1}"
-                }
-                results.append(news_item)
-            return results
+            return []
+    
+    def _get_relevant_images(self, keyword: str) -> List[str]:
+        """根据关键词获取相关图片URL"""
+        # 定义不同主题的图片URL映射
+        image_mapping = {
+            "人工智能": [
+                "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=300&h=200&fit=crop",
+                "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=300&h=200&fit=crop",
+                "https://images.unsplash.com/photo-1555255707-c07966088b7b?w=300&h=200&fit=crop"
+            ],
+            "科技": [
+                "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=200&fit=crop",
+                "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300&h=200&fit=crop",
+                "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=300&h=200&fit=crop"
+            ],
+            "经济": [
+                "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=300&h=200&fit=crop",
+                "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=300&h=200&fit=crop",
+                "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=300&h=200&fit=crop"
+            ],
+            "医疗": [
+                "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=200&fit=crop",
+                "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop",
+                "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=300&h=200&fit=crop"
+            ]
+        }
+        
+        # 检查关键词是否匹配已定义的主题
+        for topic, urls in image_mapping.items():
+            if topic in keyword:
+                return urls
+        
+        # 默认返回通用新闻图片
+        return [
+            "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=300&h=200&fit=crop",
+            "https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?w=300&h=200&fit=crop",
+            "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=300&h=200&fit=crop"
+        ]
 
 
 class NewsStorage:

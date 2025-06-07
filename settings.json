@@ -1,0 +1,10 @@
+{
+  "keywords": "区块链技术",
+  "updateTime": "09:00",
+  "apiKey": "",
+  "apiProvider": "zhipu",
+  "storageType": "sqlite",
+  "maxResults": 20,
+  "dbPath": "../data/news.db",
+  "jsonPath": "../data/news.json"
+}
