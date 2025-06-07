@@ -1,5 +1,5 @@
 # 每4小时抓取一次新闻
-0 */4 * * * cd /app/scripts && python3 news_scraper.py >> /app/logs/scraper.log 2>&1
+0 */4 * * * cd /app/scripts && /app/venv/bin/python news_scraper.py >> /app/logs/scraper.log 2>&1
 
 # 每天凌晨3点清理旧日志（保留7天）
 0 3 * * * find /app/logs -name "*.log" -type f -mtime +7 -delete

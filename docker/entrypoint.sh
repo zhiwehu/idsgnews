@@ -48,7 +48,7 @@ init_database() {
     if [ ! -f "/app/public/news.db" ]; then
         log_info "数据库文件不存在，正在创建..."
         cd /app/scripts
-        python3 news_scraper.py || log_warn "初始新闻抓取失败，将在定时任务中重试"
+        /app/venv/bin/python news_scraper.py || log_warn "初始新闻抓取失败，将在定时任务中重试"
         cd /
     else
         log_success "数据库文件已存在"

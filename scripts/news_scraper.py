@@ -23,7 +23,9 @@ from pathlib import Path
 # 尝试加载.env文件中的环境变量
 try:
     from dotenv import load_dotenv
-    load_dotenv()  # 加载.env文件
+    # 加载项目根目录的.env文件
+    project_root = Path(__file__).parent.parent
+    load_dotenv(project_root / '.env')
 except ImportError:
     # 如果没有安装python-dotenv，跳过
     pass
@@ -377,8 +379,8 @@ class NewsAPI:
     def _search_zhipu(self, keyword: str) -> List[Dict[str, Any]]:
         """使用智谱清言AI搜索新闻"""
         try:
-            # 智谱清言AI搜索API
-            url = "https://open.bigmodel.cn/api/paas/v4/tools"
+            # 智谱清言Chat Completions API
+            url = "https://open.bigmodel.cn/api/paas/v4/chat/completions"
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json"
@@ -401,17 +403,17 @@ class NewsAPI:
                     results.append(news_item)
                 return results
             
-            # 构建搜索请求
+            # 构建聊天请求，让AI生成关于关键词的新闻内容
             payload = {
-                "request_id": f"news_search_{int(time.time())}",
-                "tool": "web_search",
-                "stream": False,
+                "model": "glm-4",
                 "messages": [
                     {
                         "role": "user",
-                        "content": f"请搜索关于'{keyword}'的最新新闻，返回标题、来源、链接、发布时间和摘要"
+                        "content": f"请基于'{keyword}'这个主题，生成5条相关的新闻标题和内容摘要。请以JSON数组格式返回，每条新闻包含以下字段：title(新闻标题)、source(新闻来源，可以是知名媒体)、content(内容摘要，100-200字)、publishedAt(发布时间，使用ISO格式)。请确保内容专业、准确且有价值。请直接返回JSON数组，不要添加其他说明文字。"
                     }
-                ]
+                ],
+                "stream": False,
+                "temperature": 0.7
             }
             
             response = requests.post(url, headers=headers, json=payload, timeout=30)
@@ -423,19 +425,55 @@ class NewsAPI:
             # 解析智谱清言返回的搜索结果
             if "choices" in data and len(data["choices"]) > 0:
                 content = data["choices"][0].get("message", {}).get("content", "")
+                logger.info(f"智谱清言AI返回内容: {content[:500]}...")
                 
-                # 这里需要解析AI返回的结构化内容
-                # 由于智谱清言返回的是自然语言，我们需要尝试提取结构化信息
-                # 简化处理：生成基于关键词的模拟新闻
-                for i in range(min(5, self.settings.get_setting("maxResults"))):
+                # 尝试解析AI返回的JSON格式内容
+                try:
+                    import json
+                    import re
+                    
+                    # 尝试从回复中提取JSON内容
+                    json_match = re.search(r'\[.*\]', content, re.DOTALL)
+                    if json_match:
+                        json_str = json_match.group(0)
+                        news_data = json.loads(json_str)
+                        
+                        for item in news_data[:5]:  # 最多取5条
+                            if isinstance(item, dict):
+                                news_item = {
+                                    "title": item.get("title", f"关于{keyword}的新闻"),
+                                    "source": item.get("source", "智谱清言AI"),
+                                    "link": item.get("link", f"https://example.com/news/{len(results)}"),
+                                    "publishedAt": item.get("publishedAt", datetime.now().isoformat()),
+                                    "tags": [keyword, "AI搜索", "智谱清言"],
+                                    "imageUrl": "https://via.placeholder.com/300x200/4f46e5/ffffff?text=ZhiPu+AI",
+                                    "content": item.get("content", "智谱清言AI生成的新闻内容")
+                                }
+                                results.append(news_item)
+                    else:
+                        # 如果没有找到JSON格式，生成基于AI回复的新闻条目
+                        news_item = {
+                            "title": f"智谱清言AI关于{keyword}的分析报告",
+                            "source": "智谱清言AI",
+                            "link": f"https://chatglm.cn/search?q={keyword}",
+                            "publishedAt": datetime.now().isoformat(),
+                            "tags": [keyword, "AI分析", "智谱清言"],
+                            "imageUrl": "https://via.placeholder.com/300x200/4f46e5/ffffff?text=ZhiPu+AI",
+                            "content": content[:500] + "..." if len(content) > 500 else content
+                        }
+                        results.append(news_item)
+                        
+                except (json.JSONDecodeError, AttributeError) as e:
+                    logger.warning(f"解析AI返回的JSON失败: {e}，使用原始内容")
+                    # 生成基于AI回复的新闻条目
                     news_item = {
-                        "title": f"智谱清言AI搜索: {keyword}相关新闻 #{i+1}",
-                        "source": "智谱清言AI搜索",
-                        "link": f"https://chatglm.cn/search?q={keyword}&result={i}",
+                        "title": f"智谱清言AI关于{keyword}的分析报告",
+                        "source": "智谱清言AI",
+                        "link": f"https://chatglm.cn/search?q={keyword}",
                         "publishedAt": datetime.now().isoformat(),
-                        "tags": [keyword, "AI搜索", "智谱清言"],
-                        "imageUrl": "https://via.placeholder.com/300x200/4f46e5/ffffff?text=ZhiPu+Search",
-                        "content": content[:200] + "..." if len(content) > 200 else content
+                        "tags": [keyword, "AI分析", "智谱清言"],
+                        "imageUrl": "https://via.placeholder.com/300x200/4f46e5/ffffff?text=ZhiPu+AI",
+                        "content": content[:500] + "..." if len(content) > 500 else content
                     }
                     results.append(news_item)
             

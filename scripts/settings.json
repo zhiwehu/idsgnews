@@ -1,8 +1,8 @@
 {
-  "keywords": "artificial intelligence,AI hardware",
+  "keywords": "人工智能",
   "updateTime": "09:00",
-  "apiKey": "b82fef9f712145c09fc6e6e8b2839442",
-  "apiProvider": "newsapi",
+  "apiKey": "90d86d49380f467ab3b803ce8b51a71f.5XQlmPh55Y0cDmfp",
+  "apiProvider": "zhipu",
   "storageType": "sqlite",
   "maxResults": 20,
   "dbPath": "../public/news.db",
