@@ -89,21 +89,21 @@ create_directories() {
 update_config() {
     log_info "更新配置文件..."
     
-    # 更新docker-compose.yml中的域名和邮箱
+    # 更新docker-compose.ssl.yml中的域名和邮箱
     if [[ "$USE_STAGING" =~ ^[Yy]$ ]]; then
         STAGING_FLAG="--staging"
     else
         STAGING_FLAG=""
     fi
     
-    # 更新docker-compose.yml
-sed -i.bak "s/your-email@example.com/$EMAIL/g" docker-compose.yml
-sed -i.bak "s/your-domain.com/$DOMAIN/g" docker-compose.yml
+    # 更新docker-compose.ssl.yml
+sed -i.bak "s/your-email@example.com/$EMAIL/g" docker-compose.ssl.yml
+sed -i.bak "s/your-domain.com/$DOMAIN/g" docker-compose.ssl.yml
     
     if [[ "$USE_STAGING" =~ ^[Yy]$ ]]; then
-        sed -i.bak "s/--agree-tos --no-eff-email/--agree-tos --no-eff-email --staging/g" docker-compose.yml
+        sed -i.bak "s/--agree-tos --no-eff-email/--agree-tos --no-eff-email --staging/g" docker-compose.ssl.yml
 else
-sed -i.bak "s/--agree-tos --no-eff-email --staging/--agree-tos --no-eff-email/g" docker-compose.yml
+sed -i.bak "s/--agree-tos --no-eff-email --staging/--agree-tos --no-eff-email/g" docker-compose.ssl.yml
     fi
     
     # 更新nginx-ssl.conf
@@ -118,14 +118,14 @@ init_ssl() {
     
     # 首先启动应用以便certbot可以验证域名
     log_info "启动应用服务..."
-    docker compose up -d idsgnews
+    docker compose -f docker-compose.ssl.yml up -d idsgnews
     
     # 等待服务启动
     sleep 10
     
     # 运行certbot获取证书
     log_info "获取SSL证书..."
-    docker compose run --rm certbot
+    docker compose -f docker-compose.ssl.yml run --rm certbot
     
     if [ $? -eq 0 ]; then
         log_success "SSL证书获取成功"
@@ -139,8 +139,8 @@ init_ssl() {
 restart_services() {
     log_info "重启服务以应用SSL配置..."
     
-    docker compose down
-docker compose up -d
+    docker compose -f docker-compose.ssl.yml down
+docker compose -f docker-compose.ssl.yml up -d
     
     log_success "服务重启完成"
 }
@@ -170,11 +170,11 @@ cd "$(dirname "$0")"
 log_info "开始检查SSL证书续期..."
 
 # 尝试续期证书
-if docker compose run --rm certbot renew --quiet; then
+if docker compose -f docker-compose.ssl.yml run --rm certbot renew --quiet; then
     log_info "证书续期检查完成"
     
     # 重新加载nginx配置
-    docker compose exec idsgnews nginx -s reload
+    docker compose -f docker-compose.ssl.yml exec idsgnews nginx -s reload
     log_info "Nginx配置已重新加载"
 else
     log_error "证书续期失败"
@@ -200,10 +200,10 @@ show_result() {
     log_info "  HTTPS: https://$DOMAIN"
     echo
     log_info "管理命令:"
-    log_info "  查看服务状态: docker compose ps"
-log_info "  查看日志: docker compose logs -f"
-log_info "  停止服务: docker compose down"
-log_info "  重启服务: docker compose restart"
+    log_info "  查看服务状态: docker compose -f docker-compose.ssl.yml ps"
+log_info "  查看日志: docker compose -f docker-compose.ssl.yml logs -f"
+log_info "  停止服务: docker compose -f docker-compose.ssl.yml down"
+log_info "  重启服务: docker compose -f docker-compose.ssl.yml restart"
     log_info "  手动续期证书: ./certbot-renew.sh"
     echo
     log_warning "重要提示:"
