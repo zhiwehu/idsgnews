@@ -62,11 +62,11 @@ services:
     command: >
       '
       if [ ! -f /etc/letsencrypt/live/$$DOMAIN/fullchain.pem ]; then
-        echo "获取新的SSL证书..."
-        certbot certonly --webroot --webroot-path=/var/www/certbot --email $$EMAIL --agree-tos --no-eff-email --staging -d $$DOMAIN -d www.$$DOMAIN
-      else
-        echo "SSL证书已存在，跳过获取步骤"
-      fi
+         echo "获取新的SSL证书..."
+         certbot certonly --webroot --webroot-path=/var/www/certbot --email $$EMAIL --agree-tos --no-eff-email --staging -d $$DOMAIN
+       else
+         echo "SSL证书已存在，跳过获取步骤"
+       fi
       '
     networks:
       - idsgnews-network
