@@ -100,15 +100,15 @@ select_deployment_mode() {
 check_ports() {
     log_info "检查端口占用..."
     
-    if lsof -i :8090 &> /dev/null; then
-        log_warn "端口 8090 已被占用，可能会导致冲突"
+    if lsof -i :80 &> /dev/null; then
+        log_warn "端口 80 已被占用，可能会导致冲突"
         read -p "是否继续部署? (y/N): " continue_deploy
         if [[ ! $continue_deploy =~ ^[Yy]$ ]]; then
             log_info "部署已取消"
             exit 0
         fi
     else
-        log_success "端口 8090 可用"
+        log_success "端口 80 可用"
     fi
 }
 
@@ -138,7 +138,7 @@ wait_for_service() {
     local attempt=1
     
     while [ $attempt -le $max_attempts ]; do
-        if curl -f http://localhost:8090/ &> /dev/null; then
+        if curl -f http://localhost:80/ &> /dev/null; then
             log_success "服务启动成功"
             return 0
         fi
@@ -160,7 +160,7 @@ show_result() {
     echo
     log_success "新闻抓取系统已成功部署！"
     echo
-    echo "📊 访问地址: http://localhost:8090"
+    echo "📊 访问地址: http://localhost:80"
     echo "🗄️  数据目录: ./data"
     echo "📝 日志目录: ./logs"
     echo
